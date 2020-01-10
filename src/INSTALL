@@ -1,0 +1,300 @@
+Building and Installing pgtcl-ng
+
+   This file describes how to build and install pgtcl-ng, making it
+   available for use in your applications. This INSTALL file was extracted
+   from the full pgtcl-ng documentation (version 2007-01-15), which you
+   should consult for more information about using pgtcl in your
+   applications.
+
+Building and Installing on Unix-like Systems
+
+   This section describes how to build and install pgtcl-ng on Unix-like
+   systems, including Linux.
+
+  Prerequisites for Unix-like Systems
+
+   To build pgtcl-ng on Unix-like Systems, you need:
+
+     o Tcl/Tk version 8.3.1 or higher, with 8.4.4 or higher strongly
+       recommended.
+
+     o PostgreSQL version 8.1 or higher, with 8.2.5 or higher recommended.
+
+     o The usual building tools such as C compiler, make, and a shell.
+
+  Building and Installing - Unix-like Systems
+
+   Pgtcl-ng is Tcl Extension Architecture (TEA) compliant, shipping with a
+   standard configure script. You do not need to have a PostgreSQL source
+   distribution available to build pgtcl-ng, but you need a PostgreSQL
+   installation with libraries and header files.
+
+   After unpacking the pgtcl-ng distribution, change directory into the top
+   level of the distribution.
+
+   To configure pgtcl-ng, the paths to the to the PostgreSQL include files
+   and library files must be known. For releases of pgtcl-ng before 1.6.0,
+   you must specify these paths on the configure command line. If you have
+   the pg_config program supplied with PostgreSQL on your PATH, you can use
+   it to specify the directories as follows:
+
+ $  ./configure --prefix=/usr/local \
+      --libdir=/usr/lib/tcl8.4 \
+      --with-postgres-include=$(pg_config --includedir) \
+      --with-postgres-lib=$(pg_config --libdir)
+
+   If you don't have pg_config available, you can specify the directories
+   on the command line, for example:
+
+ $  ./configure --prefix=/usr/local \
+      --libdir=/usr/lib/tcl8.4 \
+      --with-postgres-include=/opt/postgres/include \
+      --with-postgres-lib=/opt/postgres/lib
+
+   assuming you have installed PostgreSQL in the directory /opt/postgres.
+
+   In the above configure commands, we have specified both --prefix and
+   --libdir. If you are going to manually install the product (which is
+   easy, since there is just one file produced), you can use anything you
+   want or omit these. If you plan to use the install target in the
+   Makefile, you need to point --libdir to a location where Tcl will look
+   for package directories. On a typical system, this may be
+   /usr/lib/tcl8.4/ as shown above. The --prefix is only used for the
+   header file installation (which is normally not needed anyway).
+
+   Starting with pgtcl-ng release 1.6.0, you can omit the
+   --with-postgres-lib and/or --with-postgres-include options to configure,
+   and the pg_config command will be used to locate those directories. For
+   this to work, pg_config needs to be on your PATH. pg_config is part of
+   the PostgreSQL installation. You may use configure like this:
+
+ $  ./configure --prefix=/usr/local \
+      --libdir=/usr/lib/tcl8.4
+
+  Note
+
+   pg_config expands symbolic links in pathnames. This is not significant
+   for the include directory, but it can be for the library directory,
+   because it becomes part of the built library (as rpath), used to locate
+   the PostgreSQL library libpq at runtime. If you prefer to reference your
+   PostgreSQL library path through a symbolic link (for example, so you can
+   use the libraries and executables on a system with the same symbolic
+   link but a different physical path), then do not allow configure to use
+   pg_config. Specify --with-postgres-lib when configuring instead.
+
+   To build pgtcl-ng, just type:
+
+ $  make
+
+   If all goes well, you will end up with a shared library file named
+   something like libpgtcl1.6.0.so.
+
+   You can install pgtcl-ng with:
+
+ $  make install
+
+   to install everything in the paths set during configure, as indicated
+   above. If the paths are chosen right, the result will be enabled for
+   package loading.
+
+   You may choose instead to manually install pgtcl-ng. If you will be
+   loading libpgtcl directly in your application, you need only copy that
+   file into a convenient location for loading. Note that libpgtcl will
+   need to find the PostgreSQL libpq loadable library.
+
+   If you want to be able to load libpgtcl into applications using
+
+ package require Pgtcl
+
+   you need to install libpgtcl into a subdirectory of Tcl's tcl_pkgPath or
+   auto_path, and include the file pkgIndex.tcl which tells Tcl how to load
+   the package. For example:
+
+ $ mkdir /usr/lib/tcl8.4/pgtcl1.6
+ $ cp libpgtcl1.6.0.so pkgIndex.tcl /usr/lib/tcl8.4/pgtcl1.6
+
+   This is what the make install target does. Note: The name of the
+   directory under the Tcl library directory is not important, as the
+   extension will be found regardless of the directory name. You may choose
+   to use the three-part version number in the name, or just the major and
+   minor version numbers.
+
+Building and Installing on Windows Systems (Borland Compiler)
+
+   This section describes how to build and install pgtcl-ng on Windows
+   systems. Building on Windows systems is less automated than on Unix-like
+   systems, and you are advised to fetch a binary release instead of
+   building it yourself. If you get a binary release, follow the
+   instructions in the release to install it. Installation generally just
+   involves copying two DLL files. If you want to compile your own
+   pgtcl-ng, read the following sections.
+
+  Prerequisites for Windows Systems
+
+   Here are the prerequisites for building pgtcl-ng on Windows. Note that
+   specific versions of each product are mentioned. Newer versions will
+   probably work, and older versions are less likely to work. The versions
+   listed here have been tested.
+
+   To build pgtcl-ng on Windows, you need:
+
+     o ActiveState ActiveTcl Tcl/Tk version 8.4.x or 8.5.x, installed with
+       libraries and header files;
+
+     o Borland C++ Builder Command Line Tools (BCC32 5.5.1), installed and
+       configured;
+
+     o PostgreSQL 8.2.0 source release or higher, unpacked. (Pgtcl-ng was
+       previously built with PostgreSQL releases going back to 7.4.1, and
+       it may still be possible to do so.)
+
+  Note
+
+   You can probably build this with Microsoft's C compiler, but we don't
+   have one and don't know how to do it.
+
+  Building and Installing - Windows Systems
+
+   Following the instructions below, you will first build the the
+   PostgreSQL libpq loadable library. Then you will build the pgtcl-ng
+   loadable library libpgtcl, and link it with ActiveState Tcl libraries.
+   (Even though ActiveState libraries are built with Microsoft C, they can
+   be linked with Borland C programs, with one extra step. However, you
+   cannot use the Tcl stubs interface.)
+
+  Note
+
+   For some versions of PostgreSQL, changes or patches need to be applied
+   to the source in order to build libpq using the Borland compiler.
+   Changes or patches for tested releases can be found in the pgtcl-ng
+   source release (1.6.0 or higher) in the patches/ subdirectory. Refer to
+   the README file in that directory, and apply the relevant changes,
+   before continuing with the instructions in this document.
+
+   Here are the steps to build pgtcl-ng on Windows. You will be working
+   mostly in a Command Prompt window. (The prompt is shown below as C:\>
+   but your prompt will vary.)
+
+   The steps below assume your Borland compiler is installed at
+   c:\apps\bcc, ActiveState Tcl is installed at c:\apps\tcl, your
+   PostgreSQL source is unpacked at c:\src\pgsql, and pgtcl-ng is unpacked
+   at c:\src\pgtcl. Adjust the pathnames shown below to match your actual
+   installation.
+
+    1. Create a Borland import library from the ActiveState Tcl link
+       library. This will be called tcl84.lib for Tcl-8.4.x and tcl85.lib
+       for Tcl-8.5.x. Use the appropriate filenames.
+
+ C:\> cd c:\apps\tcl\lib
+ C:\> coff2omf tcl85.lib tcl85omf.lib
+
+    2. Build the libpq loadable library, blibpq.dll.
+
+         a. In c:\src\pgsql\src\include, copy the file pg_config.h.win32 to
+            pg_config.h, overwriting the existing file, as shown.
+
+ C:\>  cd c:\src\pgsql\src\include
+ C:\>  copy pg_config.h.win32 pg_config.h
+
+         b. If you are running PostgreSQL 8.2.0 or higher, you need a
+            pg_config_os.h file in the include directory. Copy this from
+            the file port\win32.h as shown.
+
+ C:\>  cd c:\src\pgsql\src\include
+ C:\>  copy port\win32.h pg_config_os.h
+
+         c. In the directory c:\src\pgsql\src\interfaces\libpq, edit the
+            file bcc32.mak as follows:
+
+             i. Uncomment the line and define BCB to point to your Borland
+                installation directory. (Although this isn't needed to
+                compile programs with a proper PATH, it is needed for the
+                resource compiler BRC32.)
+
+             ii. Check the link command run-time library. Search the file
+                 for cw32mt and check the library name. If it is
+                 cw32mti.lib, change it to the static version cw32mt.lib.
+                 This is necessary or applications using fprintf will
+                 crash. PostgreSQL-8.2.4 and higher already seem to have
+                 this change.
+
+         d. Build the libpq library:
+
+ C:\>  cd c:\src\pgsql\src\interfaces\libpq
+ C:\>  make -N -f bcc32.mak
+
+            This will create the loadable library file blibpq.dll, and an
+            import library blibpqdll.lib, in the
+            src\interfaces\libpq\Release directory. You need these for the
+            next step.
+
+    3. Build the pgtcl loadable library, libpgtcl.dll. Change directory to
+       the unpacked pgtcl source distribution. For example:
+
+ C:\>  cd c:\src\pgtcl
+
+       Edit the file bcc32.mak as follows:
+
+         a. Define BORLAND to point to the top of your Borland installation
+            directory.
+
+         b. Define TCL to point to the top of your Tcl installation
+            directory.
+
+         c. Define POSTGRESQL to point to the top-level source directory
+            src inside your unpacked PostgreSQL distribution, where you
+            have already built libpq. For example:
+            POSTGRESQL=C:\src\pgsql\src
+
+         d. Check the name of the Tcl import library used in the file. This
+            will either be tcl84omf.lib or tcl85omf.lib. Change the name if
+            necessary to match the name you used above.
+
+       Now build libpgtcl:
+
+ C:\>  make -f bcc32.mak
+
+       This will create the file libpgtcl.dll.
+
+   To use pgtcl on Windows, you will need the two files you built:
+   c:\src\pgsql\src\interfaces\libpq\release\blibpq.dll, and
+   c:\src\pgtcl\libpgtcl.dll The Makefile contains an installation target
+   you may choose to use:
+
+ C:\>  make -f bcc32.mak install
+
+   This will install the two library files and a specially modified package
+   loading script into a new package directory in your Tcl library
+   directory.
+
+Building and Installing on MacOS 10
+
+   This section describes how to build and install pgtcl on MacOS X 10
+   systems. This information was provided by a user and has not been
+   verified by the developers or authors. It is provided in the hope that
+   it will be useful to others.
+
+  Prerequisites for MacOS Systems
+
+   Our successful report building pgtcl on MacOS used:
+
+     o MacOS X 10.3.3
+
+     o PostgreSQL 7.4.x
+
+     o Aqua Tcl/Tk 8.4.5
+
+  Building on MacOS
+
+   The user-submitted configure command for MacOS X follows. It specifies
+   additional link libraries using the EXTRA_LIBS environment variable.
+   This is used to link in the ssl libraries needed by libpq.
+
+ EXTRA_LIBS='-lssl -lcrypto' \
+ ./configure --prefix=/usr/local \
+   --libdir=/Library/Tcl \
+   --with-postgres-include=/usr/local/pgsql/include \
+   --with-postgres-lib=/usr/local/pgsql/lib \
+   --with-tcl=/Library/Frameworks/Tcl.framework \
+   --with-tclinclude=/Library/Frameworks/Tcl.framework/Headers
+  
