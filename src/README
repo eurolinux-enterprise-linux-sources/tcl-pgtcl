@@ -1,0 +1,131 @@
+This is the pgtcl-ng Source Release README
+Last updated for pgtclng-2.0.0 on 2011-09-18
+The project home page is: http://sourceforge.net/projects/pgtclng/
+-----------------------------------------------------------------------------
+
+OVERVIEW:
+
+Pgtcl is the Tcl interface for the PostgreSQL Database Management System.
+It is a loadable Tcl module implementing commands which allow an
+application to interact with a PostgreSQL database. Pgtcl-ng is the "next
+generation" implementation of Pgtcl.
+
+This is a source release. With appropriate development tools on a compatible
+platform, you can build this on your system.
+
+The full documentation for pgtcl-ng is available at the site listed in the
+header of this file. This source release only contains the minimal
+documentation for building and installing.
+
+A binary release of pgtcl-ng for Windows is available on the site listed in
+the header of this file. If you are using pgtcl on Windows, you should
+consider using the binary release. For more information about the Windows
+binary release and its requirements, see the README.txt file inside the
+release.
+
+
+CONTENTS:
+
+    README ...................  This file
+    COPYRIGHT ................  License file (Open Source)
+    INSTALL ..................  Building and installing instructions
+    NEWS .....................  Release information and new features
+    ChangeLog* ...............  Source change history files
+    README.historical ........  Historical READMEs from project predecessors
+    patches/ .................  Patches to build PostgreSQL libpq on Windows
+    extra/ ...................  Directory containing pgtclsh shell sources
+  Plus the source files and configure/build support files.
+
+
+REQUIREMENTS:
+
+Refer to the INSTALL file for details.
+
+This release has been successfully built on Linux with gcc-4.5.2;
+PostgreSQL-9.1.0, 9.0.4, and 8.4.8; and Tcl-8.5.9 and 8.4.19.  The result
+was then tested against servers running PostgreSQL versions 9.1.0, 9.0.4,
+and 8.4.8. It might build with other versions of PostgreSQL, and with older
+versions of Tcl, but these are not tested.
+
+At the time of this release, Tcl-8.6 was in beta. This release contains
+fixes so it compiles with Tcl-8.6b2 and was also tested on Linux with that
+version of Tcl.  Do not use a stubs-enabled version of Pgtcl-ng built with
+Tcl-8.6 with older Tcl versions, as it will crash due to a missing function.
+
+This release has been successfully built on Windows XP-SP3 with the MinGW
+development system (gcc-4.5.2), EnterpriseDB PostgreSQL-9.1.0 (client
+library files only), and ActiveState ActiveTcl 8.5.10. The result has been
+tested with a subset of the database versions mentioned above, and with
+ActiveState Tcl-8.5.10 and Tcl-8.4.19.  The MinGW built pgtcl-ng is available
+as a binary release for Windows. It uses the Tcl stubs mechanism, so the
+resulting DLL will work with different versions of Tcl.
+
+Previous releases of pgtcl-ng were successfully built on Windows XP-SP3
+with Borland C++ Builder 5.5 (BCC), but now MinGW is used exclusively.
+See RELEASE ISSUES - Windows below for more information.
+
+
+RELEASE ISSUES - all platforms:
+
++ The -dict option to pg_result was added in pgtclng-1.9.0 and requires Tcl-8.5
+  or higher for dictionary support. There are some cross-version issues:
+  * If pgtclng is built without stubs, it will only run with the same
+    version of Tcl that it was built under. If this is Tcl-8.4, then
+    pg_result -dict will throw a Tcl error.
+  * If pgtclng is built under Tcl-8.4 with stubs, and run under Tcl-8.5,
+    or if it is built under Tcl-8.5 with stubs, and run under Tcl-8.4,
+    then pg_result -dict will throw a Tcl error. To use pg_result -dict,
+    you must both build and run with Tcl-8.5 or higher.
+  * It is recommended to have the runtime Tcl version match or exceed the
+    build version, when using Tcl stubs.
+
++ This version of pgtcl is substantially changed from pre-1.5.x versions,
+  but should be compatible, unless undocumented or incorrect behavior of
+  previous versions was relied on in an application.  Undocumented behavior
+  of some commands changed.  Some commands now check their arguments more
+  rigorously than before. Other commands, specifically some of the Large
+  Object commands, throw a Tcl error if an error occurs, where their previous
+  behavior was undocumented but often involved returning a negative value.
+  Additionally, error messages may have changed. Another change was to
+  remove undocumented return values from result array assignment commands.
+
++ If you are looking for the Tcl shells with PostgreSQL extensions (pgtclsh
+  and pgtksh), look in the "extra/" directory. The README file there explains
+  why you might be better off not using them, though.
+
+
+RELEASE ISSUES - Windows:
+
++ Changes to the connection control environment variables (such as PGHOST,
+  PGDATABASE) are not seen once the DLL is loaded. This is either a Windows
+  DLL environment variable issue, a Tcl environment variable issue, or both.
+  This should not be a problem, since environment variables are mostly for
+  setting outside your application.
+
++ Only TCP/IP is supported, not Unix Domain Sockets. So a hostname (or IP
+  address) must be provided when connecting. If you are trying to connect
+  to a PostgreSQL server running on your Windows PC, you need to specify
+  host=localhost or host=127.0.0.1 to connect to it.
+
++ Starting with version 1.8.0, MinGW is now the chosen build environment
+  for pgtcl-ng, and only MinGW-built releases are tested. The Borland C++
+  Builder (BCC) makefile is still included, and the reference manual still
+  documents the building process, but this is no longer used or tested.
+
+  Refer to the next item regarding packaging of pgtcl-ng for Windows.
+
++ Starting with version 1.7.2, this can be built with either Borland C++
+  Builder (BCC) or MinGW. There are differences in runtime requirements
+  and features available. The BCC build includes 2 DLLs (libpgtcl and libpq)
+  which are self-contained (no other loadable libraries are needed other than
+  system libraries). However, it does not include SSL support. It may also
+  be lacking other LibPQ connection or authentication features. The MinGW
+  build requires the EnterpriseDB PostgreSQL installation (or at least most
+  of the "bin" directory) presence at runtime, because it uses their loadable
+  libraries, including libpq.  It does, however, support SSL connections.
+
+RELEASE ISSUES - MacOS
+
++ There was a report of success building pgtcl-ng on MacOS X 10.3.6.
+  See the INSTALL file for more information. Pgtcl-ng has not been tested
+  by the developer on MacOS.
