@@ -1,6 +1,6 @@
 Name:		tcl-pgtcl
 Version:	2.0.0
-Release:	3%{?dist}
+Release:	5%{?dist}
 Summary:	A Tcl client library for PostgreSQL
 
 Group:		Applications/Databases
@@ -71,6 +71,12 @@ rm -rf $RPM_BUILD_ROOT
 %doc Pgtcl-docs/*
 
 %changelog
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 2.0.0-5
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 2.0.0-4
+- Mass rebuild 2013-12-27
+
 * Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.0.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
